@@ -30,6 +30,7 @@ Usage Example
 =============
 
 .. code-block:: python
+
     import adafruit_slideshow
 
     slideshow = adafruit_slideshow.SlideShow()
