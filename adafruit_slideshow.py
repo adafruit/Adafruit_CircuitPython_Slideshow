@@ -106,9 +106,9 @@ class SlideShow:
 
     .. code-block:: python
 
-        import adafruit_slideshow
+        from adafruit_slideshow import PlayBackMode, SlideShow
 
-        slideshow = adafruit_slideshow.SlideShow()
+        slideshow = SlideShow()
         slideshow.loop = False
         slideshow.order = PlayBackMode.ALPHA
 
