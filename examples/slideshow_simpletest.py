@@ -1,13 +1,13 @@
-import adafruit_slideshow
+from adafruit_slideshow import PlayBackMode, SlideShow
 
 # Create the slideshow object
-slideshow = adafruit_slideshow.SlideShow()
+slideshow = SlideShow()
 
 # Set it to play through only once.
 slideshow.loop = False
 
 # Set the order to alphabetical.
-slideshow.order = slideshow.ALPHA
+slideshow.order = PlayBackMode.ALPHA
 
 while slideshow.update():
     pass
