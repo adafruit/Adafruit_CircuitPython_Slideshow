@@ -33,7 +33,7 @@ Implementation Notes
 
 **Hardware:**
 
- * `Adafruit Hollowing M0 Express <https://www.adafruit.com/product/3900>`_
+ * `Adafruit Hallowing M0 Express <https://www.adafruit.com/product/3900>`_
 
 **Software and Dependencies:**
 
@@ -101,7 +101,7 @@ class SlideShow:
                  if slideshow should auto play, ``False`` if you want to control advancement
                  manually.  Default is ``True``.
 
-    Example code for Hollowing Express. With this example, the slideshow will play through once
+    Example code for Hallowing Express. With this example, the slideshow will play through once
     in alphabetical order:
 
     .. code-block:: python
@@ -115,7 +115,7 @@ class SlideShow:
         while slideshow.update():
             pass
 
-    Example code for Hollowing Express. Sets ``dwell`` to 0 seconds, turns ``auto_advance`` off,
+    Example code for Hallowing Express. Sets ``dwell`` to 0 seconds, turns ``auto_advance`` off,
     and uses capacitive touch to advance backwards and forwards through the images and to control
     the brightness level of the backlight:
 

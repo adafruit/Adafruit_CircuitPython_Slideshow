@@ -31,11 +31,11 @@ Usage Example
 
 .. code-block:: python
 
-    import adafruit_slideshow
+    from adafruit_slideshow import PlayBackMode, SlideShow
 
-    slideshow = adafruit_slideshow.SlideShow()
+    slideshow = SlideShow()
     slideshow.loop = False
-    slideshow.order = slideshow.ALPHA
+    slideshow.order = PlayBackMode.ALPHA
 
     while slideshow.update():
         pass

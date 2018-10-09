@@ -27,7 +27,7 @@ Table of Contents
 .. toctree::
     :caption: Related Products
 
-    Adafruit Hollowing M0 Express <https://www.adafruit.com/product/3900>
+    Adafruit Hallowing M0 Express <https://www.adafruit.com/product/3900>
 
 .. toctree::
     :caption: Other Links
