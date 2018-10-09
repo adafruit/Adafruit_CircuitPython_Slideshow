@@ -13,8 +13,7 @@ Introduction
     :target: https://travis-ci.org/adafruit/adafruit_CircuitPython_Slideshow
     :alt: Build Status
 
-CircuitPython helper library for displaying a slideshow of images on a board with a built-in
-display.
+CircuitPython helper library for displaying a slideshow of images on a display.
 
 Dependencies
 =============
