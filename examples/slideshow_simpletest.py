@@ -1,5 +1,5 @@
-from adafruit_slideshow import PlayBackOrder, SlideShow
 import board
+from adafruit_slideshow import PlayBackOrder, SlideShow
 import pulseio
 
 # Create the slideshow object that plays through once alphabetically.

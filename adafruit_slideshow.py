@@ -48,6 +48,7 @@ import displayio
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
 
+
 class PlayBackOrder:
     """Defines possible slideshow playback orders."""
     # pylint: disable=too-few-public-methods
@@ -78,8 +79,9 @@ class SlideShow:
     :param str folder: Specify the folder containing the image files, in quotes. Default is
                        the root directory, ``"/"``.
 
-    :param PlayBackOrder order: The order in which the images display. You can choose random (``RANDOM``) or
-                  alphabetical (``ALPHABETICAL``). Default is ``ALPHABETICAL``.
+    :param PlayBackOrder order: The order in which the images display. You can choose random
+                                (``RANDOM``) or alphabetical (``ALPHABETICAL``). Default is
+                                ``ALPHABETICAL``.
 
     :param bool loop: Specify whether to loop the images or play through the list once. `True`
                  if slideshow will continue to loop, ``False`` if it will play only once.
@@ -147,8 +149,9 @@ class SlideShow:
                 slideshow.brightness -= 0.001
     """
 
-    def __init__(self, display, backlight_pwm, *, folder="/", order=PlayBackOrder.ALPHABETICAL, loop=True,
-                 dwell=3, fade_effect=True, auto_advance=True, direction=PlayBackDirection.FORWARD):
+    def __init__(self, display, backlight_pwm, *, folder="/", order=PlayBackOrder.ALPHABETICAL,
+                 loop=True, dwell=3, fade_effect=True, auto_advance=True,
+                 direction=PlayBackDirection.FORWARD):
         self.loop = loop
         """Specifies whether to loop through the images continuously or play through the list once.
         ``True`` will continue to loop, ``False`` will play only once."""
@@ -172,6 +175,7 @@ class SlideShow:
         self._img_start = None
         self._file_list = list(filter(lambda x: x.endswith("bmp"), os.listdir(folder)))
 
+        self._order = None
         self.order = order
         """The order in which the images display. You can choose random (``RANDOM``) or
            alphabetical (``ALPHA``)."""
@@ -189,6 +193,10 @@ class SlideShow:
 
         # Show the first image
         self.advance()
+
+    @property
+    def current_image_name(self):
+        return self._file_list[self._current_image]
 
     @property
     def order(self):
