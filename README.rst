@@ -13,8 +13,7 @@ Introduction
     :target: https://travis-ci.org/adafruit/adafruit_CircuitPython_Slideshow
     :alt: Build Status
 
-CircuitPython helper library for displaying a slideshow of images on a board with a built-in
-display.
+CircuitPython helper library for displaying a slideshow of images on a display.
 
 Dependencies
 =============
@@ -31,11 +30,13 @@ Usage Example
 
 .. code-block:: python
 
-    from adafruit_slideshow import PlayBackMode, SlideShow
+    from adafruit_slideshow import PlayBackOrder, SlideShow
+    import board
+    import pulseio
 
-    slideshow = SlideShow()
-    slideshow.loop = False
-    slideshow.order = PlayBackMode.ALPHA
+    # Create the slideshow object that plays through once alphabetically.
+    slideshow = SlideShow(board.DISPLAY, pulseio.PWMOut(board.TFT_BACKLIGHT), folder="/",
+                          loop=False, order=PlayBackOrder.ALPHABETICAL)
 
     while slideshow.update():
         pass
