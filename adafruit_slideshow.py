@@ -288,7 +288,6 @@ class SlideShow:
             except ValueError as error:
                 self._image_file.close()
                 self._image_file = None
-                print("remove", imagename)
                 del self._file_list[self._current_image]
 
         if not odb:
