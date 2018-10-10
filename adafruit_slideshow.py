@@ -196,6 +196,7 @@ class SlideShow:
 
     @property
     def current_image_name(self):
+        """Returns the current image name."""
         return self._file_list[self._current_image]
 
     @property
@@ -293,7 +294,7 @@ class SlideShow:
             self._image_file = open(imagename, "rb")
             try:
                 odb = displayio.OnDiskBitmap(self._image_file)
-            except ValueError as error:
+            except ValueError:
                 self._image_file.close()
                 self._image_file = None
                 del self._file_list[self._current_image]
