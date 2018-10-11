@@ -283,15 +283,15 @@ class SlideShow:
             elif not self.loop:
                 return False
             else:
-                image_count = len(self._file_list) - 1
+                image_count = len(self._file_list)
                 if self._current_image < 0:
                     self._current_image += image_count
-                elif self._current_image > image_count:
+                elif self._current_image >= image_count:
                     self._current_image -= image_count
                 self._reorder_images()
 
-            imagename = self._file_list[self._current_image]
-            self._image_file = open(imagename, "rb")
+            image_name = self._file_list[self._current_image]
+            self._image_file = open(image_name, "rb")
             try:
                 odb = displayio.OnDiskBitmap(self._image_file)
             except ValueError:
