@@ -173,7 +173,8 @@ class SlideShow:
 
         # Load the image names before setting order so they can be reordered.
         self._img_start = None
-        self._file_list = [folder+"/"+f for f in os.listdir(folder) if (f.endswith(".bmp") and not f.startswith("."))]
+        self._file_list = [folder+"/"+f for f in os.listdir(folder) if (f.endswith(".bmp")
+                                                                        and not f.startswith("."))]
 
         self._order = None
         self.order = order
