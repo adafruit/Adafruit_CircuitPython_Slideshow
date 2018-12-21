@@ -9,8 +9,8 @@ Introduction
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
-.. image:: https://travis-ci.org/adafruit/Adafruit_CircuitPython_Slideshow.svg?branch=master
-    :target: https://travis-ci.org/adafruit/Adafruit_CircuitPython_Slideshow
+.. image:: https://travis-ci.com/adafruit/Adafruit_CircuitPython_Slideshow.svg?branch=master
+    :target: https://travis-ci.com/adafruit/Adafruit_CircuitPython_Slideshow
     :alt: Build Status
 
 CircuitPython helper library for displaying a slideshow of images on a display.
