@@ -149,7 +149,7 @@ class SlideShow:
                 slideshow.brightness -= 0.001
     """
 
-    def __init__(self, display, backlight_pwm, *, folder="/", order=PlayBackOrder.ALPHABETICAL,
+    def __init__(self, display, backlight_pwm=None, *, folder="/", order=PlayBackOrder.ALPHABETICAL,
                  loop=True, dwell=3, fade_effect=True, auto_advance=True,
                  direction=PlayBackDirection.FORWARD):
         self.loop = loop
@@ -184,6 +184,8 @@ class SlideShow:
         self._current_image = -1
         self._image_file = None
         self._brightness = 0.5
+        # 4.0.0 Beta 2 replaces Sprite with TileGrid so use either.
+        self._sprite_class = getattr(displayio, "Sprite", displayio.TileGrid)
 
         # Setup the display
         self._group = displayio.Group()
@@ -191,6 +193,8 @@ class SlideShow:
         display.show(self._group)
 
         self._backlight_pwm = backlight_pwm
+        if not backlight_pwm and fade_effect:
+            self._display.auto_brightness = False
 
         # Show the first image
         self.advance()
@@ -221,8 +225,14 @@ class SlideShow:
             self._file_list = sorted(self._file_list, key=lambda x: random.random())
 
     def _set_backlight(self, brightness):
-        full_brightness = 2 ** 16 - 1
-        self._backlight_pwm.duty_cycle = int(full_brightness * brightness)
+        if self._backlight_pwm:
+            full_brightness = 2 ** 16 - 1
+            self._backlight_pwm.duty_cycle = int(full_brightness * brightness)
+        else:
+            try:
+                self._display.brightness = brightness
+            except RuntimeError:
+                pass
 
     @property
     def brightness(self):
@@ -303,7 +313,7 @@ class SlideShow:
         if not odb:
             raise RuntimeError("No valid images")
 
-        sprite = displayio.Sprite(odb, pixel_shader=displayio.ColorConverter(), position=(0, 0))
+        sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter(), position=(0, 0))
         self._group.append(sprite)
         self._display.wait_for_frame()
 
