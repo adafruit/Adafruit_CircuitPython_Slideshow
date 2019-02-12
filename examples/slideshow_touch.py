@@ -1,7 +1,7 @@
 import board
-from adafruit_slideshow import SlideShow, PlayBackDirection
 import touchio
 import pulseio
+from adafruit_slideshow import SlideShow, PlayBackDirection
 
 forward_button = touchio.TouchIn(board.TOUCH4)
 back_button = touchio.TouchIn(board.TOUCH1)
