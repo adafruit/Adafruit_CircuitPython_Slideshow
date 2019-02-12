@@ -2,6 +2,7 @@ import board
 import pulseio
 import touchio
 from adafruit_slideshow import SlideShow, PlayBackDirection
+#pylint: disable=no-member
 
 forward_button = touchio.TouchIn(board.TOUCH4)
 back_button = touchio.TouchIn(board.TOUCH1)
