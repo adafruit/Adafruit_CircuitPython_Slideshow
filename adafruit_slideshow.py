@@ -313,7 +313,10 @@ class SlideShow:
         if not odb:
             raise RuntimeError("No valid images")
 
-        sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter(), position=(0, 0))
+        try:
+            sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter())
+        except TypeError:
+            sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter(), position=(0, 0))
         self._group.append(sprite)
         self._display.wait_for_frame()
 
