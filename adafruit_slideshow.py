@@ -320,7 +320,6 @@ class SlideShow:
             sprite = self._sprite_class(odb,
                                         pixel_shader=displayio.ColorConverter(), position=(0, 0))
         self._group.append(sprite)
-        self._display.wait_for_frame()
 
         self._fade_up()
         self._img_start = time.monotonic()
