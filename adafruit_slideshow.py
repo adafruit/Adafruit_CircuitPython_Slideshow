@@ -320,12 +320,6 @@ class SlideShow:
             sprite = self._sprite_class(odb,
                                         pixel_shader=displayio.ColorConverter(), position=(0, 0))
         self._group.append(sprite)
-        # wait_for_frame is no longer needed in CP5.0
-        # use try/except for backward compatibility
-        try:
-            self._display.wait_for_frame()
-        except AttributeError:
-            pass
 
         self._fade_up()
         self._img_start = time.monotonic()
