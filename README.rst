@@ -32,7 +32,9 @@ On supported GNU/Linux systems like the Raspberry Pi, you can install the driver
 PyPI <https://pypi.org/project/adafruit-circuitpython-slideshow/>`_. To install for current user:
 
 .. code-block:: shell
+
     pip3 install adafruit-circuitpython-slideshow
+    
 To install system-wide (this may be required in some cases):
 
 .. code-block:: shell
