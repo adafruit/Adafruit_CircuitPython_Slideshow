@@ -38,10 +38,13 @@ PyPI <https://pypi.org/project/adafruit-circuitpython-slideshow/>`_. To install 
 To install system-wide (this may be required in some cases):
 
 .. code-block:: shell
+
     sudo pip3 install adafruit-circuitpython-slideshow
+    
 To install in a virtual environment in your current project:
 
 .. code-block:: shell
+
     mkdir project-name && cd project-name
     python3 -m venv .env
     source .env/bin/activate
