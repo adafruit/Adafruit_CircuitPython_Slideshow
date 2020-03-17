@@ -16,8 +16,7 @@ forward_button.switch_to_input(pull=digitalio.Pull.DOWN)
 back_button = digitalio.DigitalInOut(board.BUTTON_B)
 back_button.switch_to_input(pull=digitalio.Pull.DOWN)
 
-slideshow = SlideShow(display, None, folder="/",
-                      auto_advance=False, dwell=0)
+slideshow = SlideShow(display, None, folder="/", auto_advance=False, dwell=0)
 
 while True:
     if forward_button.value:

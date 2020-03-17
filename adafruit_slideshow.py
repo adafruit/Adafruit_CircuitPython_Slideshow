@@ -51,6 +51,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
 
 class PlayBackOrder:
     """Defines possible slideshow playback orders."""
+
     # pylint: disable=too-few-public-methods
     ALPHABETICAL = 0
     """Orders by alphabetical sort of filenames"""
@@ -62,6 +63,7 @@ class PlayBackOrder:
 
 class PlayBackDirection:
     """Defines possible slideshow playback directions."""
+
     # pylint: disable=too-few-public-methods
     BACKWARD = -1
     """The next image is before the current image. When alphabetically sorted, this is towards A."""
@@ -149,9 +151,19 @@ class SlideShow:
                 slideshow.brightness -= 0.001
     """
 
-    def __init__(self, display, backlight_pwm=None, *, folder="/", order=PlayBackOrder.ALPHABETICAL,
-                 loop=True, dwell=3, fade_effect=True, auto_advance=True,
-                 direction=PlayBackDirection.FORWARD):
+    def __init__(
+        self,
+        display,
+        backlight_pwm=None,
+        *,
+        folder="/",
+        order=PlayBackOrder.ALPHABETICAL,
+        loop=True,
+        dwell=3,
+        fade_effect=True,
+        auto_advance=True,
+        direction=PlayBackDirection.FORWARD
+    ):
         self.loop = loop
         """Specifies whether to loop through the images continuously or play through the list once.
         ``True`` will continue to loop, ``False`` will play only once."""
@@ -173,8 +185,11 @@ class SlideShow:
 
         # Load the image names before setting order so they can be reordered.
         self._img_start = None
-        self._file_list = [folder+"/"+f for f in os.listdir(folder) if (f.endswith(".bmp")
-                                                                        and not f.startswith("."))]
+        self._file_list = [
+            folder + "/" + f
+            for f in os.listdir(folder)
+            if (f.endswith(".bmp") and not f.startswith("."))
+        ]
 
         self._order = None
         self.order = order
@@ -314,11 +329,11 @@ class SlideShow:
             raise RuntimeError("No valid images")
 
         try:
-            sprite = self._sprite_class(odb,
-                                        pixel_shader=displayio.ColorConverter())
+            sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter())
         except TypeError:
-            sprite = self._sprite_class(odb,
-                                        pixel_shader=displayio.ColorConverter(), position=(0, 0))
+            sprite = self._sprite_class(
+                odb, pixel_shader=displayio.ColorConverter(), position=(0, 0)
+            )
         self._group.append(sprite)
 
         self._fade_up()
