@@ -25,7 +25,7 @@
 ====================================================
 CircuitPython helper library for displaying a slideshow of images on a display.
 
-* Author(s): Kattni Rembor, Carter Nelson, Roy Hooper
+* Author(s): Kattni Rembor, Carter Nelson, Roy Hooper, Melissa LeBlanc-Williams
 
 Implementation Notes
 --------------------
@@ -45,8 +45,28 @@ import os
 import random
 import displayio
 
-__version__ = "0.0.0-auto.0"
+__version__ = "1.2.2"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
+
+
+class HorizontalAlignment:
+    """Defines possible horizontal alignment orders."""
+
+    # pylint: disable=too-few-public-methods
+    LEFT = 1
+    CENTER = 2
+    RIGHT = 3
+    # pylint: enable=too-few-public-methods
+
+
+class VerticalAlignment:
+    """Defines possible vertical alignment orders."""
+
+    # pylint: disable=too-few-public-methods
+    TOP = 1
+    CENTER = 2
+    BOTTOM = 3
+    # pylint: enable=too-few-public-methods
 
 
 class PlayBackOrder:
@@ -101,6 +121,10 @@ class SlideShow:
                  manually.  Default is ``True``.
 
     :param PlayBackDirection direction: The playback direction.
+
+    :param HorizonalAlignment h_align: The Horizontal alignment of smaller/larger images
+
+    :param VerticalAlignment v_align: The Vertical alignment of smaller/larger images
 
     Example code for Hallowing Express. With this example, the slideshow will play through once
     in alphabetical order:
@@ -162,7 +186,9 @@ class SlideShow:
         dwell=3,
         fade_effect=True,
         auto_advance=True,
-        direction=PlayBackDirection.FORWARD
+        direction=PlayBackDirection.FORWARD,
+        h_align=HorizontalAlignment.LEFT,
+        v_align=VerticalAlignment.TOP,
     ):
         self.loop = loop
         """Specifies whether to loop through the images continuously or play through the list once.
@@ -195,6 +221,10 @@ class SlideShow:
         self.order = order
         """The order in which the images display. You can choose random (``RANDOM``) or
            alphabetical (``ALPHA``)."""
+
+        # Default positioning
+        self._h_align = h_align
+        self._v_align = v_align
 
         self._current_image = -1
         self._image_file = None
@@ -289,9 +319,9 @@ class SlideShow:
 
         return self.advance()
 
+    # pylint: disable=too-many-branches
     def advance(self):
-        """Displays the next image. Returns True when a new image was displayed, False otherwise.
-        """
+        """Displays the next image. Returns True when a new image was displayed, False otherwise."""
         if self._image_file:
             self._fade_down()
             self._group.pop()
@@ -328,6 +358,20 @@ class SlideShow:
         if not odb:
             raise RuntimeError("No valid images")
 
+        if self._h_align == HorizontalAlignment.RIGHT:
+            self._group.x = self._display.width - odb.width
+        elif self._h_align == HorizontalAlignment.CENTER:
+            self._group.x = round(self._display.width / 2 - odb.width / 2)
+        else:
+            self._group.x = 0
+
+        if self._v_align == VerticalAlignment.BOTTOM:
+            self._group.y = self._display.height - odb.height
+        elif self._v_align == VerticalAlignment.CENTER:
+            self._group.y = round(self._display.height / 2 - odb.height / 2)
+        else:
+            self._group.y = 0
+
         try:
             sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter())
         except TypeError:
@@ -340,3 +384,35 @@ class SlideShow:
         self._img_start = time.monotonic()
 
         return True
+
+    # pylint: enable=too-many-branches
+
+    @property
+    def h_align(self):
+        """Get or Set the Horizontal Alignment"""
+        return self._h_align
+
+    @h_align.setter
+    def h_align(self, val):
+        if val not in (
+            HorizontalAlignment.LEFT,
+            HorizontalAlignment.CENTER,
+            HorizontalAlignment.RIGHT,
+        ):
+            raise ValueError("Alignment must be LEFT, RIGHT, or CENTER")
+        self._h_align = val
+
+    @property
+    def v_align(self):
+        """Get or Set the Vertical Alignment"""
+        return self._v_align
+
+    @v_align.setter
+    def v_align(self, val):
+        if val not in (
+            VerticalAlignment.TOP,
+            VerticalAlignment.CENTER,
+            VerticalAlignment.BOTTOM,
+        ):
+            raise ValueError("Alignment must be TOP, BOTTOM, or CENTER")
+        self._v_align = val
