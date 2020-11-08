@@ -5,6 +5,8 @@ display larger than 128px in both directions.
 This example cycles through 4 different images and moves
 them around to different positions on the screen each
 time it updates by using the alignment feature.
+
+You must copy the images/ directory onto your CIRCUITPY drive.
 """
 import board
 from adafruit_slideshow import (
