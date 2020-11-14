@@ -238,7 +238,11 @@ class SlideShow:
         display.show(self._group)
 
         self._backlight_pwm = backlight_pwm
-        if not backlight_pwm and fade_effect:
+        if (
+            not backlight_pwm
+            and fade_effect
+            and hasattr(self._display, "auto_brightness")
+        ):
             self._display.auto_brightness = False
 
         # Show the first image
@@ -276,7 +280,7 @@ class SlideShow:
         else:
             try:
                 self._display.brightness = brightness
-            except RuntimeError:
+            except (RuntimeError, AttributeError):
                 pass
 
     @property
@@ -316,7 +320,6 @@ class SlideShow:
         now = time.monotonic()
         if not self.auto_advance or now - self._img_start < self.dwell:
             return True
-
         return self.advance()
 
     # pylint: disable=too-many-branches
@@ -380,6 +383,8 @@ class SlideShow:
             )
         self._group.append(sprite)
 
+        if hasattr(self._display, "refresh"):
+            self._display.refresh()
         self._fade_up()
         self._img_start = time.monotonic()
 
