@@ -45,6 +45,12 @@ import os
 import random
 import displayio
 import json
+try:
+    from adafruit_display_text import bitmap_label
+    import terminalio
+    TEXT_SLIDES_ENABLED = True
+except ImportError:
+    TEXT_SLIDES_ENABLED = False
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
@@ -192,13 +198,14 @@ class SlideShow:
         v_align=VerticalAlignment.TOP,
     ):
         def _check_json_file(file):
-            with open(file) as f:
-                try:
-                    json_data = json.loads(f.read())
-                    if "text" in json_data:
-                        return True
-                except ValueError:
-                    return False
+            if TEXT_SLIDES_ENABLED:
+                with open(file) as f:
+                    try:
+                        json_data = json.loads(f.read())
+                        if "text" in json_data:
+                            return True
+                    except ValueError:
+                        return False
             return False
         self.loop = loop
         """Specifies whether to loop through the slides continuously or play through the list once.
@@ -323,6 +330,42 @@ class SlideShow:
             self._set_backlight(self.brightness * i / steps)
             time.sleep(0.01)
 
+    def _create_label(self, file):
+        json_data = json.loads(file.read())
+        label = bitmap_label.Label(terminalio.FONT, text=json_data['text'])
+        if "h_align" not in json_data or json_data["h_align"] == "LEFT":
+            x_anchor_point = 0.0
+            x_anchored_position = 0
+        elif json_data["h_align"] == "CENTER":
+            x_anchor_point = 0.5
+            x_anchored_position = self._display.width // 2
+        elif json_data["h_align"] == "RIGHT":
+            x_anchor_point = 1.0
+            x_anchored_position = self._display.width - 1
+        else:
+            # wrong value for align
+            x_anchor_point = 0.0
+            x_anchored_position = 0
+
+        if "v_align" not in json_data or json_data["v_align"] == "TOP":
+            y_anchor_point = 0.0
+            y_anchored_position = 0
+        elif json_data["v_align"] == "CENTER":
+            y_anchor_point = 0.5
+            y_anchored_position = self._display.height // 2
+        elif json_data["v_align"] == "BOTTOM":
+            y_anchor_point = 1.0
+            y_anchored_position = self._display.height - 1
+        else:
+            # wrong value for align
+            y_anchor_point = 0.0
+            y_anchored_position = 0
+
+        label.anchor_point = (x_anchor_point, y_anchor_point)
+        label.anchored_position = (x_anchored_position, y_anchored_position)
+        return label
+
+
     def update(self):
         """Updates the slideshow to the next image."""
         now = time.monotonic()
@@ -344,7 +387,8 @@ class SlideShow:
         # Try to load slides until a valid file is found or we run out of options. This
         # loop stops because we either set odb or reduce the length of _file_list.
         odb = None
-        while not odb and self._file_list:
+        lbl = None
+        while not odb and not lbl and self._file_list:
             if 0 <= self._current_slide_index < len(self._file_list):
                 pass
             elif not self.loop:
@@ -357,35 +401,41 @@ class SlideShow:
                     self._current_slide_index -= slide_count
                 self._reorder_slides()
 
-            image_name = self._file_list[self._current_slide_index]
-            self._slide_file = open(image_name, "rb")
-            try:
-                odb = displayio.OnDiskBitmap(self._slide_file)
-            except ValueError:
-                self._slide_file.close()
-                self._slide_file = None
-                del self._file_list[self._current_slide_index]
+            file_name = self._file_list[self._current_slide_index]
+            self._slide_file = open(file_name, "rb")
+            if file_name.endswith(".bmp"):
+                try:
+                    odb = displayio.OnDiskBitmap(self._slide_file)
+                except ValueError:
+                    self._slide_file.close()
+                    self._slide_file = None
+                    del self._file_list[self._current_slide_index]
+            elif file_name.endswith(".json"):
+                lbl = self._create_label(self._slide_file)
 
-        if not odb:
-            raise RuntimeError("No valid images")
+        if not odb and not lbl:
+            raise RuntimeError("No valid images or text json files")
 
-        if self._h_align == HorizontalAlignment.RIGHT:
-            self._group.x = self._display.width - odb.width
-        elif self._h_align == HorizontalAlignment.CENTER:
-            self._group.x = round(self._display.width / 2 - odb.width / 2)
-        else:
-            self._group.x = 0
+        if odb:
+            if self._h_align == HorizontalAlignment.RIGHT:
+                self._group.x = self._display.width - odb.width
+            elif self._h_align == HorizontalAlignment.CENTER:
+                self._group.x = round(self._display.width / 2 - odb.width / 2)
+            else:
+                self._group.x = 0
 
-        if self._v_align == VerticalAlignment.BOTTOM:
-            self._group.y = self._display.height - odb.height
-        elif self._v_align == VerticalAlignment.CENTER:
-            self._group.y = round(self._display.height / 2 - odb.height / 2)
-        else:
-            self._group.y = 0
+            if self._v_align == VerticalAlignment.BOTTOM:
+                self._group.y = self._display.height - odb.height
+            elif self._v_align == VerticalAlignment.CENTER:
+                self._group.y = round(self._display.height / 2 - odb.height / 2)
+            else:
+                self._group.y = 0
 
-        image_tilegrid = displayio.TileGrid(odb, pixel_shader=displayio.ColorConverter())
+            image_tilegrid = displayio.TileGrid(odb, pixel_shader=displayio.ColorConverter())
 
-        self._group.append(image_tilegrid)
+            self._group.append(image_tilegrid)
+        if lbl:
+            self._group.append(lbl)
 
         if hasattr(self._display, "refresh"):
             self._display.refresh()
