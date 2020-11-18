@@ -43,11 +43,14 @@ Implementation Notes
 import time
 import os
 import random
-import displayio
 import json
+import displayio
+
+
 try:
     from adafruit_display_text import bitmap_label
     import terminalio
+
     TEXT_SLIDES_ENABLED = True
 except ImportError:
     TEXT_SLIDES_ENABLED = False
@@ -199,14 +202,15 @@ class SlideShow:
     ):
         def _check_json_file(file):
             if TEXT_SLIDES_ENABLED:
-                with open(file) as f:
+                with open(file) as _file_obj:
                     try:
-                        json_data = json.loads(f.read())
+                        json_data = json.loads(_file_obj.read())
                         if "text" in json_data:
                             return True
                     except ValueError:
                         return False
             return False
+
         self.loop = loop
         """Specifies whether to loop through the slides continuously or play through the list once.
         ``True`` will continue to loop, ``False`` will play only once."""
@@ -231,7 +235,10 @@ class SlideShow:
         self._file_list = [
             folder + "/" + f
             for f in os.listdir(folder)
-            if ((f.endswith(".bmp") or _check_json_file(folder + "/" + f)) and not f.startswith("."))
+            if (
+                (f.endswith(".bmp") or _check_json_file(folder + "/" + f))
+                and not f.startswith(".")
+            )
         ]
 
         self._order = None
@@ -336,7 +343,9 @@ class SlideShow:
         if "scale" in json_data:
             _scale = int(json_data["scale"])
 
-        label = bitmap_label.Label(terminalio.FONT, text=json_data['text'], scale=_scale)
+        label = bitmap_label.Label(
+            terminalio.FONT, text=json_data["text"], scale=_scale
+        )
         if "h_align" not in json_data or json_data["h_align"] == "LEFT":
             x_anchor_point = 0.0
             x_anchored_position = 0
@@ -375,7 +384,6 @@ class SlideShow:
         label.anchored_position = (x_anchored_position, y_anchored_position)
         return label
 
-
     def update(self):
         """Updates the slideshow to the next image."""
         now = time.monotonic()
@@ -383,7 +391,7 @@ class SlideShow:
             return True
         return self.advance()
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches, too-many-statements
     def advance(self):
         """Displays the next image. Returns True when a new image was displayed, False otherwise."""
         if self._slide_file:
@@ -441,7 +449,9 @@ class SlideShow:
             else:
                 self._group.y = 0
 
-            image_tilegrid = displayio.TileGrid(odb, pixel_shader=displayio.ColorConverter())
+            image_tilegrid = displayio.TileGrid(
+                odb, pixel_shader=displayio.ColorConverter()
+            )
 
             self._group.append(image_tilegrid)
         if lbl:
