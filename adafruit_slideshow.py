@@ -44,6 +44,7 @@ import time
 import os
 import random
 import displayio
+import json
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
@@ -190,6 +191,15 @@ class SlideShow:
         h_align=HorizontalAlignment.LEFT,
         v_align=VerticalAlignment.TOP,
     ):
+        def _check_json_file(file):
+            with open(file) as f:
+                try:
+                    json_data = json.loads(f.read())
+                    if "text" in json_data:
+                        return True
+                except ValueError:
+                    return False
+            return False
         self.loop = loop
         """Specifies whether to loop through the images continuously or play through the list once.
         ``True`` will continue to loop, ``False`` will play only once."""
@@ -214,7 +224,7 @@ class SlideShow:
         self._file_list = [
             folder + "/" + f
             for f in os.listdir(folder)
-            if (f.endswith(".bmp") and not f.startswith("."))
+            if ((f.endswith(".bmp") or _check_json_file(folder + "/" + f)) and not f.startswith("."))
         ]
 
         self._order = None
