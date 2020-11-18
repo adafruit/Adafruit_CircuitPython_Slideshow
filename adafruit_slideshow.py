@@ -201,11 +201,11 @@ class SlideShow:
                     return False
             return False
         self.loop = loop
-        """Specifies whether to loop through the images continuously or play through the list once.
+        """Specifies whether to loop through the slides continuously or play through the list once.
         ``True`` will continue to loop, ``False`` will play only once."""
 
         self.dwell = dwell
-        """The number of seconds each image displays, in seconds."""
+        """The number of seconds each slide displays, in seconds."""
 
         self.direction = direction
         """Specify the playback direction.  Default is ``PlayBackDirection.FORWARD``.  Can also be
@@ -215,9 +215,9 @@ class SlideShow:
         """Enable auto-advance based on dwell time.  Set to ``False`` to manually control."""
 
         self.fade_effect = fade_effect
-        """Whether to include the fade effect between images. ``True`` tells the code to fade the
-           backlight up and down between image display transitions. ``False`` maintains max
-           brightness on the backlight between image transitions."""
+        """Whether to include the fade effect between slides. ``True`` tells the code to fade the
+           backlight up and down between slide display transitions. ``False`` maintains max
+           brightness on the backlight between slide transitions."""
 
         # Load the image names before setting order so they can be reordered.
         self._img_start = None
@@ -236,11 +236,9 @@ class SlideShow:
         self._h_align = h_align
         self._v_align = v_align
 
-        self._current_image = -1
-        self._image_file = None
+        self._current_slide_index = -1
+        self._slide_file = None
         self._brightness = 0.5
-        # 4.0.0 Beta 2 replaces Sprite with TileGrid so use either.
-        self._sprite_class = getattr(displayio, "Sprite", displayio.TileGrid)
 
         # Setup the display
         self._group = displayio.Group()
@@ -259,9 +257,9 @@ class SlideShow:
         self.advance()
 
     @property
-    def current_image_name(self):
+    def current_slide_name(self):
         """Returns the current image name."""
-        return self._file_list[self._current_image]
+        return self._file_list[self._current_slide_index]
 
     @property
     def order(self):
@@ -275,9 +273,9 @@ class SlideShow:
             raise ValueError("Order must be either 'RANDOM' or 'ALPHABETICAL'")
 
         self._order = order
-        self._reorder_images()
+        self._reorder_slides()
 
-    def _reorder_images(self):
+    def _reorder_slides(self):
         if self.order == PlayBackOrder.ALPHABETICAL:
             self._file_list = sorted(self._file_list)
         elif self.order == PlayBackOrder.RANDOM:
@@ -335,38 +333,38 @@ class SlideShow:
     # pylint: disable=too-many-branches
     def advance(self):
         """Displays the next image. Returns True when a new image was displayed, False otherwise."""
-        if self._image_file:
+        if self._slide_file:
             self._fade_down()
             self._group.pop()
-            self._image_file.close()
-            self._image_file = None
+            self._slide_file.close()
+            self._slide_file = None
 
-        self._current_image += self.direction
+        self._current_slide_index += self.direction
 
-        # Try and load an OnDiskBitmap until a valid file is found or we run out of options. This
+        # Try to load slides until a valid file is found or we run out of options. This
         # loop stops because we either set odb or reduce the length of _file_list.
         odb = None
         while not odb and self._file_list:
-            if 0 <= self._current_image < len(self._file_list):
+            if 0 <= self._current_slide_index < len(self._file_list):
                 pass
             elif not self.loop:
                 return False
             else:
-                image_count = len(self._file_list)
-                if self._current_image < 0:
-                    self._current_image += image_count
-                elif self._current_image >= image_count:
-                    self._current_image -= image_count
-                self._reorder_images()
+                slide_count = len(self._file_list)
+                if self._current_slide_index < 0:
+                    self._current_slide_index += slide_count
+                elif self._current_slide_index >= slide_count:
+                    self._current_slide_index -= slide_count
+                self._reorder_slides()
 
-            image_name = self._file_list[self._current_image]
-            self._image_file = open(image_name, "rb")
+            image_name = self._file_list[self._current_slide_index]
+            self._slide_file = open(image_name, "rb")
             try:
-                odb = displayio.OnDiskBitmap(self._image_file)
+                odb = displayio.OnDiskBitmap(self._slide_file)
             except ValueError:
-                self._image_file.close()
-                self._image_file = None
-                del self._file_list[self._current_image]
+                self._slide_file.close()
+                self._slide_file = None
+                del self._file_list[self._current_slide_index]
 
         if not odb:
             raise RuntimeError("No valid images")
@@ -385,13 +383,9 @@ class SlideShow:
         else:
             self._group.y = 0
 
-        try:
-            sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter())
-        except TypeError:
-            sprite = self._sprite_class(
-                odb, pixel_shader=displayio.ColorConverter(), position=(0, 0)
-            )
-        self._group.append(sprite)
+        image_tilegrid = displayio.TileGrid(odb, pixel_shader=displayio.ColorConverter())
+
+        self._group.append(image_tilegrid)
 
         if hasattr(self._display, "refresh"):
             self._display.refresh()

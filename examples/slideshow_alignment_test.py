@@ -39,9 +39,9 @@ slideshow.h_align = aligns[i][1]
 slideshow.v_align = aligns[i][0]
 i += 1
 
-prev_img = slideshow.current_image_name
+prev_img = slideshow.current_slide_name
 while slideshow.update():
-    cur_img = slideshow.current_image_name
+    cur_img = slideshow.current_slide_name
     if prev_img != cur_img:
         slideshow.h_align = aligns[i][1]
         slideshow.v_align = aligns[i][0]
