@@ -338,6 +338,10 @@ class SlideShow:
             time.sleep(0.01)
 
     def _create_label(self, file):
+        """Creates and returns a label from a file object that contains
+        valid valid json describing the text to use.
+        See: examples/sample_text_slide.json
+        """
         json_data = json.loads(file.read())
         _scale = 1
         if "scale" in json_data:
