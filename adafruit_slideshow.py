@@ -46,7 +46,6 @@ import random
 import json
 import displayio
 
-
 try:
     from adafruit_display_text import bitmap_label
     import terminalio
@@ -202,13 +201,14 @@ class SlideShow:
     ):
         def _check_json_file(file):
             if TEXT_SLIDES_ENABLED:
-                with open(file) as _file_obj:
-                    try:
-                        json_data = json.loads(_file_obj.read())
-                        if "text" in json_data:
-                            return True
-                    except ValueError:
-                        return False
+                if file.endswith(".json"):
+                    with open(file) as _file_obj:
+                        try:
+                            json_data = json.loads(_file_obj.read())
+                            if "text" in json_data:
+                                return True
+                        except ValueError:
+                            return False
             return False
 
         self.loop = loop
@@ -233,11 +233,11 @@ class SlideShow:
         # Load the image names before setting order so they can be reordered.
         self._img_start = None
         self._file_list = [
-            folder + "/" + f
+            folder + f
             for f in os.listdir(folder)
             if (
-                (f.endswith(".bmp") or _check_json_file(folder + "/" + f))
-                and not f.startswith(".")
+                not f.startswith(".")
+                and (f.endswith(".bmp") or _check_json_file(folder + f))
             )
         ]
 
