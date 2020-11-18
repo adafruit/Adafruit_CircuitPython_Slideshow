@@ -332,7 +332,11 @@ class SlideShow:
 
     def _create_label(self, file):
         json_data = json.loads(file.read())
-        label = bitmap_label.Label(terminalio.FONT, text=json_data['text'])
+        _scale = 1
+        if "scale" in json_data:
+            _scale = int(json_data["scale"])
+
+        label = bitmap_label.Label(terminalio.FONT, text=json_data['text'], scale=_scale)
         if "h_align" not in json_data or json_data["h_align"] == "LEFT":
             x_anchor_point = 0.0
             x_anchored_position = 0
@@ -360,6 +364,12 @@ class SlideShow:
             # wrong value for align
             y_anchor_point = 0.0
             y_anchored_position = 0
+
+        if "background_color" in json_data:
+            label.background_color = int(json_data["background_color"], 16)
+
+        if "color" in json_data:
+            label.color = int(json_data["color"], 16)
 
         label.anchor_point = (x_anchor_point, y_anchor_point)
         label.anchored_position = (x_anchored_position, y_anchored_position)

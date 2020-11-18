@@ -1,7 +1,8 @@
 {
   "text": "Sample Text\nSlideshow",
-  "h_alignment": "CENTER",
-  "v_alignment": "CENTER",
+  "h_align": "CENTER",
+  "v_align": "CENTER",
   "color": "0x0000FF",
-  "background_color": "0xFF00FF"
+  "background_color": "0xFF00FF",
+  "scale": 2
 }
