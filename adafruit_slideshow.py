@@ -47,11 +47,14 @@ import json
 import displayio
 
 try:
+    # text slides are an optional feature and require
+    # adafruit_display_text
     from adafruit_display_text import bitmap_label
     import terminalio
 
     TEXT_SLIDES_ENABLED = True
 except ImportError:
+    print("Warning: adafruit_display_text not found. No support for text slides.")
     TEXT_SLIDES_ENABLED = False
 
 __version__ = "0.0.0-auto.0"
