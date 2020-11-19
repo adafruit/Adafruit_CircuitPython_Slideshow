@@ -47,8 +47,7 @@ import json
 import displayio
 
 try:
-    # text slides are an optional feature and require
-    # adafruit_display_text
+    # text slides are an optional feature and require adafruit_display_text
     from adafruit_display_text import bitmap_label
     import terminalio
 
@@ -56,6 +55,15 @@ try:
 except ImportError:
     print("Warning: adafruit_display_text not found. No support for text slides.")
     TEXT_SLIDES_ENABLED = False
+
+try:
+    # custom fonts are an optional feature and require adafruit_bitmap_font
+    from adafruit_bitmap_font import bitmap_font
+
+    CUSTOM_FONTS = True
+except ImportError:
+    print("Warning: adafruit_bitmap_font not found. No support for custom fonts.")
+    CUSTOM_FONTS = False
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
@@ -341,6 +349,7 @@ class SlideShow:
             time.sleep(0.01)
 
     def _create_label(self, file):
+        # pylint: disable=too-many-branches
         """Creates and returns a label from a file object that contains
         valid valid json describing the text to use.
         See: examples/sample_text_slide.json
@@ -350,9 +359,15 @@ class SlideShow:
         if "scale" in json_data:
             _scale = int(json_data["scale"])
 
-        label = bitmap_label.Label(
-            terminalio.FONT, text=json_data["text"], scale=_scale
-        )
+        if CUSTOM_FONTS:
+            if "font" in json_data:
+                _font = bitmap_font.load_font(json_data["font"])
+            else:
+                _font = terminalio.FONT
+        else:
+            _font = terminalio.FONT
+
+        label = bitmap_label.Label(_font, text=json_data["text"], scale=_scale)
         if "h_align" not in json_data or json_data["h_align"] == "LEFT":
             x_anchor_point = 0.0
             x_anchored_position = 0
