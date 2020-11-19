@@ -2,7 +2,7 @@
   "text": "Sample Text\nSlideshow",
   "h_align": "CENTER",
   "v_align": "CENTER",
-  "color": "0x0000FF",
-  "background_color": "0xFF00FF",
+  "color": "0x000000",
+  "background_color": "0xFFFFFF",
   "scale": 2
 }
