@@ -16,6 +16,7 @@ slideshow = SlideShow(
     folder="/images/",
     loop=False,
     order=PlayBackOrder.ALPHABETICAL,
+    dwell=10,
 )
 
 while slideshow.update():
