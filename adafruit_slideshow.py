@@ -43,7 +43,27 @@ Implementation Notes
 import time
 import os
 import random
+import json
 import displayio
+
+try:
+    # text slides are an optional feature and require adafruit_display_text
+    from adafruit_display_text import bitmap_label
+    import terminalio
+
+    TEXT_SLIDES_ENABLED = True
+except ImportError:
+    print("Warning: adafruit_display_text not found. No support for text slides.")
+    TEXT_SLIDES_ENABLED = False
+
+try:
+    # custom fonts are an optional feature and require adafruit_bitmap_font
+    from adafruit_bitmap_font import bitmap_font
+
+    CUSTOM_FONTS = True
+except ImportError:
+    print("Warning: adafruit_bitmap_font not found. No support for custom fonts.")
+    CUSTOM_FONTS = False
 
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
@@ -190,12 +210,24 @@ class SlideShow:
         h_align=HorizontalAlignment.LEFT,
         v_align=VerticalAlignment.TOP,
     ):
+        def _check_json_file(file):
+            if TEXT_SLIDES_ENABLED:
+                if file.endswith(".json"):
+                    with open(file) as _file_obj:
+                        try:
+                            json_data = json.loads(_file_obj.read())
+                            if "text" in json_data:
+                                return True
+                        except ValueError:
+                            return False
+            return False
+
         self.loop = loop
-        """Specifies whether to loop through the images continuously or play through the list once.
+        """Specifies whether to loop through the slides continuously or play through the list once.
         ``True`` will continue to loop, ``False`` will play only once."""
 
         self.dwell = dwell
-        """The number of seconds each image displays, in seconds."""
+        """The number of seconds each slide displays, in seconds."""
 
         self.direction = direction
         """Specify the playback direction.  Default is ``PlayBackDirection.FORWARD``.  Can also be
@@ -205,16 +237,19 @@ class SlideShow:
         """Enable auto-advance based on dwell time.  Set to ``False`` to manually control."""
 
         self.fade_effect = fade_effect
-        """Whether to include the fade effect between images. ``True`` tells the code to fade the
-           backlight up and down between image display transitions. ``False`` maintains max
-           brightness on the backlight between image transitions."""
+        """Whether to include the fade effect between slides. ``True`` tells the code to fade the
+           backlight up and down between slide display transitions. ``False`` maintains max
+           brightness on the backlight between slide transitions."""
 
         # Load the image names before setting order so they can be reordered.
         self._img_start = None
         self._file_list = [
-            folder + "/" + f
+            folder + f
             for f in os.listdir(folder)
-            if (f.endswith(".bmp") and not f.startswith("."))
+            if (
+                not f.startswith(".")
+                and (f.endswith(".bmp") or _check_json_file(folder + f))
+            )
         ]
 
         self._order = None
@@ -226,11 +261,9 @@ class SlideShow:
         self._h_align = h_align
         self._v_align = v_align
 
-        self._current_image = -1
-        self._image_file = None
+        self._current_slide_index = -1
+        self._slide_file = None
         self._brightness = 0.5
-        # 4.0.0 Beta 2 replaces Sprite with TileGrid so use either.
-        self._sprite_class = getattr(displayio, "Sprite", displayio.TileGrid)
 
         # Setup the display
         self._group = displayio.Group()
@@ -249,9 +282,9 @@ class SlideShow:
         self.advance()
 
     @property
-    def current_image_name(self):
+    def current_slide_name(self):
         """Returns the current image name."""
-        return self._file_list[self._current_image]
+        return self._file_list[self._current_slide_index]
 
     @property
     def order(self):
@@ -265,9 +298,9 @@ class SlideShow:
             raise ValueError("Order must be either 'RANDOM' or 'ALPHABETICAL'")
 
         self._order = order
-        self._reorder_images()
+        self._reorder_slides()
 
-    def _reorder_images(self):
+    def _reorder_slides(self):
         if self.order == PlayBackOrder.ALPHABETICAL:
             self._file_list = sorted(self._file_list)
         elif self.order == PlayBackOrder.RANDOM:
@@ -315,6 +348,64 @@ class SlideShow:
             self._set_backlight(self.brightness * i / steps)
             time.sleep(0.01)
 
+    def _create_label(self, file):
+        # pylint: disable=too-many-branches
+        """Creates and returns a label from a file object that contains
+        valid valid json describing the text to use.
+        See: examples/sample_text_slide.json
+        """
+        json_data = json.loads(file.read())
+        _scale = 1
+        if "scale" in json_data:
+            _scale = int(json_data["scale"])
+
+        if CUSTOM_FONTS:
+            if "font" in json_data:
+                _font = bitmap_font.load_font(json_data["font"])
+            else:
+                _font = terminalio.FONT
+        else:
+            _font = terminalio.FONT
+
+        label = bitmap_label.Label(_font, text=json_data["text"], scale=_scale)
+        if "h_align" not in json_data or json_data["h_align"] == "LEFT":
+            x_anchor_point = 0.0
+            x_anchored_position = 0
+        elif json_data["h_align"] == "CENTER":
+            x_anchor_point = 0.5
+            x_anchored_position = self._display.width // 2
+        elif json_data["h_align"] == "RIGHT":
+            x_anchor_point = 1.0
+            x_anchored_position = self._display.width - 1
+        else:
+            # wrong value for align
+            x_anchor_point = 0.0
+            x_anchored_position = 0
+
+        if "v_align" not in json_data or json_data["v_align"] == "TOP":
+            y_anchor_point = 0.0
+            y_anchored_position = 0
+        elif json_data["v_align"] == "CENTER":
+            y_anchor_point = 0.5
+            y_anchored_position = self._display.height // 2
+        elif json_data["v_align"] == "BOTTOM":
+            y_anchor_point = 1.0
+            y_anchored_position = self._display.height - 1
+        else:
+            # wrong value for align
+            y_anchor_point = 0.0
+            y_anchored_position = 0
+
+        if "background_color" in json_data:
+            label.background_color = int(json_data["background_color"], 16)
+
+        if "color" in json_data:
+            label.color = int(json_data["color"], 16)
+
+        label.anchor_point = (x_anchor_point, y_anchor_point)
+        label.anchored_position = (x_anchored_position, y_anchored_position)
+        return label
+
     def update(self):
         """Updates the slideshow to the next image."""
         now = time.monotonic()
@@ -322,66 +413,71 @@ class SlideShow:
             return True
         return self.advance()
 
-    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-branches, too-many-statements
     def advance(self):
         """Displays the next image. Returns True when a new image was displayed, False otherwise."""
-        if self._image_file:
+        if self._slide_file:
             self._fade_down()
             self._group.pop()
-            self._image_file.close()
-            self._image_file = None
+            self._slide_file.close()
+            self._slide_file = None
 
-        self._current_image += self.direction
+        self._current_slide_index += self.direction
 
-        # Try and load an OnDiskBitmap until a valid file is found or we run out of options. This
+        # Try to load slides until a valid file is found or we run out of options. This
         # loop stops because we either set odb or reduce the length of _file_list.
         odb = None
-        while not odb and self._file_list:
-            if 0 <= self._current_image < len(self._file_list):
+        lbl = None
+        while not odb and not lbl and self._file_list:
+            if 0 <= self._current_slide_index < len(self._file_list):
                 pass
             elif not self.loop:
                 return False
             else:
-                image_count = len(self._file_list)
-                if self._current_image < 0:
-                    self._current_image += image_count
-                elif self._current_image >= image_count:
-                    self._current_image -= image_count
-                self._reorder_images()
+                slide_count = len(self._file_list)
+                if self._current_slide_index < 0:
+                    self._current_slide_index += slide_count
+                elif self._current_slide_index >= slide_count:
+                    self._current_slide_index -= slide_count
+                self._reorder_slides()
 
-            image_name = self._file_list[self._current_image]
-            self._image_file = open(image_name, "rb")
-            try:
-                odb = displayio.OnDiskBitmap(self._image_file)
-            except ValueError:
-                self._image_file.close()
-                self._image_file = None
-                del self._file_list[self._current_image]
+            file_name = self._file_list[self._current_slide_index]
+            self._slide_file = open(file_name, "rb")
+            if file_name.endswith(".bmp"):
+                try:
+                    odb = displayio.OnDiskBitmap(self._slide_file)
+                except ValueError:
+                    self._slide_file.close()
+                    self._slide_file = None
+                    del self._file_list[self._current_slide_index]
+            elif file_name.endswith(".json"):
+                lbl = self._create_label(self._slide_file)
 
-        if not odb:
-            raise RuntimeError("No valid images")
+        if not odb and not lbl:
+            raise RuntimeError("No valid images or text json files")
 
-        if self._h_align == HorizontalAlignment.RIGHT:
-            self._group.x = self._display.width - odb.width
-        elif self._h_align == HorizontalAlignment.CENTER:
-            self._group.x = round(self._display.width / 2 - odb.width / 2)
-        else:
-            self._group.x = 0
+        if odb:
+            if self._h_align == HorizontalAlignment.RIGHT:
+                self._group.x = self._display.width - odb.width
+            elif self._h_align == HorizontalAlignment.CENTER:
+                self._group.x = round(self._display.width / 2 - odb.width / 2)
+            else:
+                self._group.x = 0
 
-        if self._v_align == VerticalAlignment.BOTTOM:
-            self._group.y = self._display.height - odb.height
-        elif self._v_align == VerticalAlignment.CENTER:
-            self._group.y = round(self._display.height / 2 - odb.height / 2)
-        else:
-            self._group.y = 0
+            if self._v_align == VerticalAlignment.BOTTOM:
+                self._group.y = self._display.height - odb.height
+            elif self._v_align == VerticalAlignment.CENTER:
+                self._group.y = round(self._display.height / 2 - odb.height / 2)
+            else:
+                self._group.y = 0
 
-        try:
-            sprite = self._sprite_class(odb, pixel_shader=displayio.ColorConverter())
-        except TypeError:
-            sprite = self._sprite_class(
-                odb, pixel_shader=displayio.ColorConverter(), position=(0, 0)
+            image_tilegrid = displayio.TileGrid(
+                odb, pixel_shader=displayio.ColorConverter()
             )
-        self._group.append(sprite)
+
+            self._group.append(image_tilegrid)
+        if lbl:
+            self._group.append(lbl)
 
         if hasattr(self._display, "refresh"):
             self._display.refresh()
