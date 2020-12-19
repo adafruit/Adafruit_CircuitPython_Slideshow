@@ -43,13 +43,13 @@ Implementation Notes
 import time
 import os
 import random
-import json
 import displayio
 
 try:
     # text slides are an optional feature and require adafruit_display_text
     from adafruit_display_text import bitmap_label
     import terminalio
+    import json
 
     TEXT_SLIDES_ENABLED = True
 except ImportError:
