@@ -244,11 +244,11 @@ class SlideShow:
         # Load the image names before setting order so they can be reordered.
         self._img_start = None
         self._file_list = [
-            folder + f
+            os.path.join(folder, f)
             for f in os.listdir(folder)
             if (
                 not f.startswith(".")
-                and (f.endswith(".bmp") or _check_json_file(folder + f))
+                and (f.endswith(".bmp") or _check_json_file(os.path.join(folder, f)))
             )
         ]
 
