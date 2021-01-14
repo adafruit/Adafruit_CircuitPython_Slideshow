@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """
 This example runs best on a PyPortal or other device with a
 display larger than 128px in both directions.
@@ -20,7 +23,11 @@ from adafruit_slideshow import (
 
 # Create the slideshow object that plays through once alphabetically.
 slideshow = SlideShow(
-    board.DISPLAY, None, folder="/images/", loop=True, order=PlayBackOrder.ALPHABETICAL,
+    board.DISPLAY,
+    None,
+    folder="/images/",
+    loop=True,
+    order=PlayBackOrder.ALPHABETICAL,
 )
 
 aligns = [
