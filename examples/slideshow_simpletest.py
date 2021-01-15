@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
 """Basic demonstration script will create a slideshow
 object that plays through once alphabetically."""
 import board
