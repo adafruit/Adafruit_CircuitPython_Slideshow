@@ -57,10 +57,10 @@ Usage Example
 
     from adafruit_slideshow import PlayBackOrder, SlideShow
     import board
-    import pulseio
+    import pwmio
 
     # Create the slideshow object that plays through once alphabetically.
-    slideshow = SlideShow(board.DISPLAY, pulseio.PWMOut(board.TFT_BACKLIGHT), folder="/",
+    slideshow = SlideShow(board.DISPLAY, pwmio.PWMOut(board.TFT_BACKLIGHT), folder="/",
                           loop=False, order=PlayBackOrder.ALPHABETICAL)
 
     while slideshow.update():
