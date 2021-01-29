@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 import board
-import pulseio
+import pwmio
 import touchio
 from adafruit_slideshow import SlideShow, PlayBackDirection
 
@@ -16,7 +16,7 @@ brightness_down = touchio.TouchIn(board.TOUCH2)
 
 slideshow = SlideShow(
     board.DISPLAY,
-    pulseio.PWMOut(board.TFT_BACKLIGHT),
+    pwmio.PWMOut(board.TFT_BACKLIGHT),
     folder="/",
     auto_advance=False,
     dwell=0,
