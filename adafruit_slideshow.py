@@ -454,7 +454,10 @@ class SlideShow:
                 self._group.y = 0
 
             image_tilegrid = displayio.TileGrid(
-                odb, pixel_shader=displayio.ColorConverter()
+                odb,
+                pixel_shader=getattr(odb, "pixel_shader", displayio.ColorConverter()),
+                # TODO: Once CP6 is no longer supported, replace the above line with below
+                # pixel_shader=odb.pixel_shader,
             )
 
             self._group.append(image_tilegrid)
