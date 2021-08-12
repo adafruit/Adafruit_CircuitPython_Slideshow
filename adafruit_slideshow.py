@@ -135,9 +135,9 @@ class SlideShow:
 
         from adafruit_slideshow import PlayBackOrder, SlideShow
         import board
-        import pulseio
+        import pwmio
 
-        slideshow = SlideShow(board.DISPLAY, pulseio.PWMOut(board.TFT_BACKLIGHT), folder="/",
+        slideshow = SlideShow(board.DISPLAY, pwmio.PWMOut(board.TFT_BACKLIGHT), folder="/",
                               loop=False, order=PlayBackOrder.ALPHABETICAL)
 
         while slideshow.update():
@@ -152,7 +152,7 @@ class SlideShow:
         from adafruit_slideshow import PlayBackOrder, SlideShow, PlayBackDirection
         import touchio
         import board
-        import pulseio
+        import pwmio
 
         forward_button = touchio.TouchIn(board.TOUCH4)
         back_button = touchio.TouchIn(board.TOUCH1)
@@ -160,7 +160,7 @@ class SlideShow:
         brightness_up = touchio.TouchIn(board.TOUCH3)
         brightness_down = touchio.TouchIn(board.TOUCH2)
 
-        slideshow = SlideShow(board.DISPLAY, pulseio.PWMOut(board.TFT_BACKLIGHT), folder="/",
+        slideshow = SlideShow(board.DISPLAY, pwmio.PWMOut(board.TFT_BACKLIGHT), folder="/",
                               auto_advance=False, dwell=0)
 
         while True:
