@@ -66,6 +66,11 @@ Usage Example
     while slideshow.update():
         pass
 
+Documentation
+=============
+
+API documentation for this library can be found on `Read the Docs <https://circuitpython.readthedocs.io/projects/slideshow/en/latest/>`_.
+
 Contributing
 ============
 
