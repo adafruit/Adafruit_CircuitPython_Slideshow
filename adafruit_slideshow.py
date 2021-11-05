@@ -424,16 +424,16 @@ class SlideShow:
                 self._reorder_slides()
 
             file_name = self._file_list[self._current_slide_index]
-            self._slide_file = open(file_name, "rb")
-            if file_name.endswith(".bmp"):
-                try:
-                    odb = displayio.OnDiskBitmap(self._slide_file)
-                except ValueError:
-                    self._slide_file.close()
-                    self._slide_file = None
-                    del self._file_list[self._current_slide_index]
-            elif file_name.endswith(".json"):
-                lbl = self._create_label(self._slide_file)
+            with open(file_name, "rb") as self._slide_file:
+                if file_name.endswith(".bmp"):
+                    try:
+                        odb = displayio.OnDiskBitmap(self._slide_file)
+                    except ValueError:
+                        self._slide_file.close()
+                        self._slide_file = None
+                        del self._file_list[self._current_slide_index]
+                elif file_name.endswith(".json"):
+                    lbl = self._create_label(self._slide_file)
 
         if not odb and not lbl:
             raise RuntimeError("No valid images or text json files")
