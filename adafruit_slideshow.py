@@ -7,7 +7,7 @@
 ====================================================
 CircuitPython helper library for displaying a slideshow of images on a display.
 
-* Author(s): Kattni Rembor, Carter Nelson, Roy Hooper, Melissa LeBlanc-Williams
+* Author(s): Kattni Rembor, Carter Nelson, Rose Hooper, Melissa LeBlanc-Williams
 
 Implementation Notes
 --------------------
@@ -244,7 +244,7 @@ class SlideShow:
         self._v_align = v_align
 
         self._current_slide_index = -1
-        self._slide_file = None
+        self._file_name = None
         self._brightness = 0.5
 
         # Setup the display
@@ -330,13 +330,14 @@ class SlideShow:
             self._set_backlight(self.brightness * i / steps)
             time.sleep(0.01)
 
-    def _create_label(self, file):
+    def _create_label(self, file_name):
         # pylint: disable=too-many-branches
         """Creates and returns a label from a file object that contains
         valid valid json describing the text to use.
         See: examples/sample_text_slide.json
         """
-        json_data = json.loads(file.read())
+        with open(file_name, "rb") as file:
+            json_data = json.loads(file.read())
         _scale = 1
         if "scale" in json_data:
             _scale = int(json_data["scale"])
@@ -398,11 +399,10 @@ class SlideShow:
     # pylint: disable=too-many-branches, too-many-statements
     def advance(self):
         """Displays the next image. Returns True when a new image was displayed, False otherwise."""
-        if self._slide_file:
+        if self._file_name:
             self._fade_down()
             self._group.pop()
-            self._slide_file.close()
-            self._slide_file = None
+            self._file_name = None
 
         self._current_slide_index += self.direction
 
@@ -423,17 +423,15 @@ class SlideShow:
                     self._current_slide_index -= slide_count
                 self._reorder_slides()
 
-            file_name = self._file_list[self._current_slide_index]
-            with open(file_name, "rb") as self._slide_file:
-                if file_name.endswith(".bmp"):
-                    try:
-                        odb = displayio.OnDiskBitmap(self._slide_file)
-                    except ValueError:
-                        self._slide_file.close()
-                        self._slide_file = None
-                        del self._file_list[self._current_slide_index]
-                elif file_name.endswith(".json"):
-                    lbl = self._create_label(self._slide_file)
+            self._file_name = self._file_list[self._current_slide_index]
+            if self._file_name.endswith(".bmp"):
+                try:
+                    odb = displayio.OnDiskBitmap(self._file_name)
+                except ValueError:
+                    del self._file_list[self._current_slide_index]
+                    self._file_name = None
+            elif self._file_name.endswith(".json"):
+                lbl = self._create_label(self._file_name)
 
         if not odb and not lbl:
             raise RuntimeError("No valid images or text json files")
@@ -464,9 +462,9 @@ class SlideShow:
         if lbl:
             self._group.append(lbl)
 
+        self._fade_up()
         if hasattr(self._display, "refresh"):
             self._display.refresh()
-        self._fade_up()
         self._img_start = time.monotonic()
 
         return True
