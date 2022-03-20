@@ -25,7 +25,12 @@ extensions = [
 # Uncomment the below if you use native CircuitPython modules such as
 # digitalio, micropython and busio. List the modules you use. Without it, the
 # autodoc module docs will fail to generate with a warning.
-autodoc_mock_imports = ["displayio", "pwmio", "adafruit_display_text", "adafruit_bitmap_font"]
+autodoc_mock_imports = [
+    "displayio",
+    "pwmio",
+    "adafruit_display_text",
+    "adafruit_bitmap_font",
+]
 
 
 intersphinx_mapping = {
