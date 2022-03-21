@@ -47,6 +47,12 @@ except ImportError:
     print("Warning: adafruit_bitmap_font not found. No support for custom fonts.")
     CUSTOM_FONTS = False
 
+try:
+    from typing import Optional
+    from pwmio import PWMOut
+except ImportError:
+    pass
+
 __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
 
@@ -100,6 +106,8 @@ class SlideShow:
     """
     Class for displaying a slideshow of .bmp images on displays.
 
+    :param displayio.Display display: The display to use
+    :param PWMOut backlight_pwm: The PWMOut object used for the backlight
     :param str folder: Specify the folder containing the image files, in quotes. Default is
                        the root directory, ``"/"``.
 
@@ -179,20 +187,20 @@ class SlideShow:
 
     def __init__(
         self,
-        display,
-        backlight_pwm=None,
+        display: displayio.Display,
+        backlight_pwm: Optional[PWMOut] = None,
         *,
-        folder="/",
-        order=PlayBackOrder.ALPHABETICAL,
-        loop=True,
-        dwell=3,
-        fade_effect=True,
-        auto_advance=True,
-        direction=PlayBackDirection.FORWARD,
-        h_align=HorizontalAlignment.LEFT,
-        v_align=VerticalAlignment.TOP,
-    ):
-        def _check_json_file(file):
+        folder: str = "/",
+        order: int = PlayBackOrder.ALPHABETICAL,
+        loop: bool = True,
+        dwell: int = 3,
+        fade_effect: bool = True,
+        auto_advance: bool = True,
+        direction: int = PlayBackDirection.FORWARD,
+        h_align: int = HorizontalAlignment.LEFT,
+        v_align: int = VerticalAlignment.TOP,
+    ) -> None:
+        def _check_json_file(file: str) -> bool:
             if TEXT_SLIDES_ENABLED:
                 if file.endswith(".json"):
                     with open(file) as _file_obj:
@@ -264,31 +272,31 @@ class SlideShow:
         self.advance()
 
     @property
-    def current_slide_name(self):
+    def current_slide_name(self) -> str:
         """Returns the current image name."""
         return self._file_list[self._current_slide_index]
 
     @property
-    def order(self):
+    def order(self) -> int:
         """Specifies the order in which the images are displayed. Options are random (``RANDOM``) or
         alphabetical (``ALPHABETICAL``). Default is ``RANDOM``."""
         return self._order
 
     @order.setter
-    def order(self, order):
+    def order(self, order: int) -> None:
         if order not in [PlayBackOrder.ALPHABETICAL, PlayBackOrder.RANDOM]:
             raise ValueError("Order must be either 'RANDOM' or 'ALPHABETICAL'")
 
         self._order = order
         self._reorder_slides()
 
-    def _reorder_slides(self):
+    def _reorder_slides(self) -> None:
         if self.order == PlayBackOrder.ALPHABETICAL:
             self._file_list = sorted(self._file_list)
         elif self.order == PlayBackOrder.RANDOM:
             self._file_list = sorted(self._file_list, key=lambda x: random.random())
 
-    def _set_backlight(self, brightness):
+    def _set_backlight(self, brightness: float) -> None:
         if self._backlight_pwm:
             full_brightness = 2 ** 16 - 1
             self._backlight_pwm.duty_cycle = int(full_brightness * brightness)
@@ -299,12 +307,12 @@ class SlideShow:
                 pass
 
     @property
-    def brightness(self):
+    def brightness(self) -> float:
         """Brightness of the backlight when an image is displaying. Clamps to 0 to 1.0"""
         return self._brightness
 
     @brightness.setter
-    def brightness(self, brightness):
+    def brightness(self, brightness: float) -> None:
         if brightness < 0:
             brightness = 0
         elif brightness > 1.0:
@@ -312,7 +320,7 @@ class SlideShow:
         self._brightness = brightness
         self._set_backlight(brightness)
 
-    def _fade_up(self):
+    def _fade_up(self) -> None:
         if not self.fade_effect:
             self._set_backlight(self.brightness)
             return
@@ -321,7 +329,7 @@ class SlideShow:
             self._set_backlight(self.brightness * i / steps)
             time.sleep(0.01)
 
-    def _fade_down(self):
+    def _fade_down(self) -> None:
         if not self.fade_effect:
             self._set_backlight(self.brightness)
             return
@@ -330,7 +338,7 @@ class SlideShow:
             self._set_backlight(self.brightness * i / steps)
             time.sleep(0.01)
 
-    def _create_label(self, file_name):
+    def _create_label(self, file_name: str) -> bitmap_label.Label:
         # pylint: disable=too-many-branches
         """Creates and returns a label from a file object that contains
         valid valid json describing the text to use.
@@ -389,7 +397,7 @@ class SlideShow:
         label.anchored_position = (x_anchored_position, y_anchored_position)
         return label
 
-    def update(self):
+    def update(self) -> bool:
         """Updates the slideshow to the next image."""
         now = time.monotonic()
         if not self.auto_advance or now - self._img_start < self.dwell:
@@ -397,7 +405,7 @@ class SlideShow:
         return self.advance()
 
     # pylint: disable=too-many-branches, too-many-statements
-    def advance(self):
+    def advance(self) -> bool:
         """Displays the next image. Returns True when a new image was displayed, False otherwise."""
         if self._file_name:
             self._fade_down()
@@ -472,12 +480,12 @@ class SlideShow:
     # pylint: enable=too-many-branches
 
     @property
-    def h_align(self):
+    def h_align(self) -> int:
         """Get or Set the Horizontal Alignment"""
         return self._h_align
 
     @h_align.setter
-    def h_align(self, val):
+    def h_align(self, val: int) -> None:
         if val not in (
             HorizontalAlignment.LEFT,
             HorizontalAlignment.CENTER,
@@ -487,12 +495,12 @@ class SlideShow:
         self._h_align = val
 
     @property
-    def v_align(self):
+    def v_align(self) -> int:
         """Get or Set the Vertical Alignment"""
         return self._v_align
 
     @v_align.setter
-    def v_align(self, val):
+    def v_align(self, val: int) -> None:
         if val not in (
             VerticalAlignment.TOP,
             VerticalAlignment.CENTER,
