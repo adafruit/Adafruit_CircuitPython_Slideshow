@@ -298,7 +298,7 @@ class SlideShow:
 
     def _set_backlight(self, brightness: float) -> None:
         if self._backlight_pwm:
-            full_brightness = 2 ** 16 - 1
+            full_brightness = 2**16 - 1
             self._backlight_pwm.duty_cycle = int(full_brightness * brightness)
         else:
             try:
