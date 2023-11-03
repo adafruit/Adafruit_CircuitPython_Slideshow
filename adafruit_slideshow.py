@@ -258,7 +258,7 @@ class SlideShow:
         # Setup the display
         self._group = displayio.Group()
         self._display = display
-        display.show(self._group)
+        display.root_group = self._group
 
         self._backlight_pwm = backlight_pwm
         if (
