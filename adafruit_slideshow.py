@@ -22,16 +22,19 @@ Implementation Notes
   https://github.com/adafruit/circuitpython/releases
 
 """
-import time
+
 import os
 import random
+import time
+
 import displayio
 
 try:
     # text slides are an optional feature and require adafruit_display_text
-    from adafruit_display_text import bitmap_label
-    import terminalio
     import json
+
+    import terminalio
+    from adafruit_display_text import bitmap_label
 
     TEXT_SLIDES_ENABLED = True
 except ImportError:
@@ -49,6 +52,7 @@ except ImportError:
 
 try:
     from typing import Optional
+
     from pwmio import PWMOut
 except ImportError:
     pass
@@ -60,49 +64,40 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_Slideshow.git"
 class HorizontalAlignment:
     """Defines possible horizontal alignment orders."""
 
-    # pylint: disable=too-few-public-methods
     LEFT = 1
     CENTER = 2
     RIGHT = 3
-    # pylint: enable=too-few-public-methods
 
 
 class VerticalAlignment:
     """Defines possible vertical alignment orders."""
 
-    # pylint: disable=too-few-public-methods
     TOP = 1
     CENTER = 2
     BOTTOM = 3
-    # pylint: enable=too-few-public-methods
 
 
 class PlayBackOrder:
     """Defines possible slideshow playback orders."""
 
-    # pylint: disable=too-few-public-methods
     ALPHABETICAL = 0
     """Orders by alphabetical sort of filenames"""
 
     RANDOM = 1
     """Randomly shuffles the images"""
-    # pylint: enable=too-few-public-methods
 
 
 class PlayBackDirection:
     """Defines possible slideshow playback directions."""
 
-    # pylint: disable=too-few-public-methods
     BACKWARD = -1
     """The next image is before the current image. When alphabetically sorted, this is towards A."""
 
     FORWARD = 1
     """The next image is after the current image. When alphabetically sorted, this is towards Z."""
-    # pylint: enable=too-few-public-methods
 
 
 class SlideShow:
-    # pylint: disable=too-many-instance-attributes
     """
     Class for displaying a slideshow of .bmp images on displays.
 
@@ -237,8 +232,7 @@ class SlideShow:
             folder + "/" + f
             for f in os.listdir(folder)
             if (
-                not f.startswith(".")
-                and (f.endswith(".bmp") or _check_json_file(folder + "/" + f))
+                not f.startswith(".") and (f.endswith(".bmp") or _check_json_file(folder + "/" + f))
             )
         ]
 
@@ -261,11 +255,7 @@ class SlideShow:
         display.root_group = self._group
 
         self._backlight_pwm = backlight_pwm
-        if (
-            not backlight_pwm
-            and fade_effect
-            and hasattr(self._display, "auto_brightness")
-        ):
+        if not backlight_pwm and fade_effect and hasattr(self._display, "auto_brightness"):
             self._display.auto_brightness = False
 
         # Show the first image
@@ -284,7 +274,7 @@ class SlideShow:
 
     @order.setter
     def order(self, order: int) -> None:
-        if order not in [PlayBackOrder.ALPHABETICAL, PlayBackOrder.RANDOM]:
+        if order not in {PlayBackOrder.ALPHABETICAL, PlayBackOrder.RANDOM}:
             raise ValueError("Order must be either 'RANDOM' or 'ALPHABETICAL'")
 
         self._order = order
@@ -339,7 +329,6 @@ class SlideShow:
             time.sleep(0.01)
 
     def _create_label(self, file_name: str) -> bitmap_label.Label:
-        # pylint: disable=too-many-branches
         """Creates and returns a label from a file object that contains
         valid valid json describing the text to use.
         See: examples/sample_text_slide.json
@@ -404,7 +393,6 @@ class SlideShow:
             return True
         return self.advance()
 
-    # pylint: disable=too-many-branches, too-many-statements
     def advance(self) -> bool:
         """Displays the next image. Returns True when a new image was displayed, False otherwise."""
         if self._file_name:
@@ -477,8 +465,6 @@ class SlideShow:
 
         return True
 
-    # pylint: enable=too-many-branches
-
     @property
     def h_align(self) -> int:
         """Get or Set the Horizontal Alignment"""
@@ -486,11 +472,11 @@ class SlideShow:
 
     @h_align.setter
     def h_align(self, val: int) -> None:
-        if val not in (
+        if val not in {
             HorizontalAlignment.LEFT,
             HorizontalAlignment.CENTER,
             HorizontalAlignment.RIGHT,
-        ):
+        }:
             raise ValueError("Alignment must be LEFT, RIGHT, or CENTER")
         self._h_align = val
 
@@ -501,10 +487,10 @@ class SlideShow:
 
     @v_align.setter
     def v_align(self, val: int) -> None:
-        if val not in (
+        if val not in {
             VerticalAlignment.TOP,
             VerticalAlignment.CENTER,
             VerticalAlignment.BOTTOM,
-        ):
+        }:
             raise ValueError("Alignment must be TOP, BOTTOM, or CENTER")
         self._v_align = val

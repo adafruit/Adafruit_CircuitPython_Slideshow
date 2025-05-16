@@ -4,9 +4,8 @@
 import board
 import pwmio
 import touchio
-from adafruit_slideshow import SlideShow, PlayBackDirection
 
-# pylint: disable=no-member
+from adafruit_slideshow import PlayBackDirection, SlideShow
 
 forward_button = touchio.TouchIn(board.TOUCH4)
 back_button = touchio.TouchIn(board.TOUCH1)

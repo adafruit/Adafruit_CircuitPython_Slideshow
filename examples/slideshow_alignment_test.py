@@ -11,15 +11,15 @@ time it updates by using the alignment feature.
 
 You must copy the images/ directory onto your CIRCUITPY drive.
 """
+
 import board
+
 from adafruit_slideshow import (
+    HorizontalAlignment,
     PlayBackOrder,
     SlideShow,
     VerticalAlignment,
-    HorizontalAlignment,
 )
-
-# pylint: disable=no-member
 
 # Create the slideshow object that plays through once alphabetically.
 slideshow = SlideShow(
