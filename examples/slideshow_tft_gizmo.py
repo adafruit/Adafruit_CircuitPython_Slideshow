@@ -10,7 +10,8 @@ Written by Melissa LeBlanc-Williams for Adafruit Industries
 import board
 import digitalio
 from adafruit_gizmo import tft_gizmo
-from adafruit_slideshow import SlideShow, PlayBackDirection
+
+from adafruit_slideshow import PlayBackDirection, SlideShow
 
 display = tft_gizmo.TFT_Gizmo()
 
