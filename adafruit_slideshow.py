@@ -33,7 +33,6 @@ try:
     # text slides are an optional feature and require adafruit_display_text
     import json
 
-    import busdisplay
     import terminalio
     from adafruit_display_text import bitmap_label
 
@@ -54,6 +53,7 @@ except ImportError:
 try:
     from typing import Optional
 
+    import busdisplay
     from pwmio import PWMOut
 except ImportError:
     pass
