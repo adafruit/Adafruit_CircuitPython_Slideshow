@@ -53,6 +53,7 @@ except ImportError:
 try:
     from typing import Optional
 
+    import busdisplay
     from pwmio import PWMOut
 except ImportError:
     pass
@@ -101,7 +102,7 @@ class SlideShow:
     """
     Class for displaying a slideshow of .bmp images on displays.
 
-    :param displayio.Display display: The display to use
+    :param busdisplay.BusDisplay display: The display to use
     :param PWMOut backlight_pwm: The PWMOut object used for the backlight
     :param str folder: Specify the folder containing the image files, in quotes. Default is
                        the root directory, ``"/"``.
@@ -182,7 +183,7 @@ class SlideShow:
 
     def __init__(
         self,
-        display: displayio.Display,
+        display: busdisplay.BusDisplay,
         backlight_pwm: Optional[PWMOut] = None,
         *,
         folder: str = "/",
